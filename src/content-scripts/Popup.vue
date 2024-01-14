@@ -1,90 +1,72 @@
 <template>
   <div class="fixed top-0 right-0 m-6 z-50 flex items-center justify-center" v-show="visible">
-    <div class="popup bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <div class="mb-4">
-        <h1 class="block text-gray-700 text-sm font-bold mb-2">{{ loggedIn ? 'Você está logado!' : 'Faça login para continuar' }}</h1>
+    <div class="popup bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" >
+      <div class="" v-if="loading">
+        <p>Carregando...</p>
       </div>
-      <form @submit.prevent="submitForm">
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-            Nome de usuário
-          </label>
-          <input
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            v-model="username" type="text" placeholder="Nome de usuário" />
-        </div>
-        <div class="mb-6">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-            Senha
-          </label>
-          <input
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            v-model="password" type="password" placeholder="Senha" />
-        </div>
-        <div class="flex items-center justify-between">
-          <button
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit">
-            Entrar
-          </button>
+      <div class="" v-if="loggedIn">
+        <p>Logado!</p>
+      </div> 
+      <div v-else>
+        <LoginPage v-if="!loggedIn" />
       </div>
-    </form>
-    <p class="text-red-500 text-xs italic" v-if="errorMessage">{{ errorMessage }}</p>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
 import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
+import LoginPage from "./LoginPage.vue";
 import axios from 'axios';
 
 export default defineComponent({
+  components: {
+    LoginPage,
+  },
   setup() {
     const visible = ref(false);
-    const username = ref('');
-    const password = ref('');
-    const errorMessage = ref(null);
     const loggedIn = ref(false); // novo estado para gerenciar o login
+    const apiURL = 'http://127.0.0.1:8000/'
+    const loading = ref(true);
+    const errorMessage = ref('');
+    
 
     const state = reactive({
       currentTab: null
     });
 
     onMounted(() => {
-      chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
-        state.currentTab = await tab;
-        console.log(state.currentTab);
+      const token = localStorage.getItem('token');
+      console.log(token)
+      const options = {
+        method: 'GET',
+        url: apiURL + 'api/user',
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      axios.request(options).then(response => {
+        loading.value = false;
+        if (response.data.user) {
+          loggedIn.value = true;
+        } else {
+          loggedIn.value = false;
+        }
+
+        chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
+          state.currentTab = await tab;
+          console.log(state.currentTab);
+        });
+      }).catch(error => {
+        loading.value = false; // Adicione esta linha
+        errorMessage.value = error.message;
       });
     });
 
-    const submitForm = async () => {
-      try {
-        const options = {
-          method: 'POST',
-          url: 'http://127.0.0.1:8000/api/entrar',
-          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-          data: { email: username.value, password: password.value }
-        };
-
-        axios.request(options).then(function (response) {
-          console.log(response.data);
-          // Atualiza o estado para indicar que o login foi bem-sucedido
-          loggedIn.value = true;
-        }).catch(function (error) {
-          errorMessage.value = error.message;
-        });
-      } catch (error) {
-        errorMessage.value = error.message;
-      }
-    };
-
     return {
       visible,
-      username,
-      password,
-      errorMessage,
-      submitForm,
       loggedIn, // retornar o estado de login
+      loading,
+      errorMessage,
       ...toRefs(state)
     };
   }
