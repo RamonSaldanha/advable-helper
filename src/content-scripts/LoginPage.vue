@@ -1,36 +1,40 @@
 <template>
-  <div class="div-principal">
-    <div class="margem-b-4">
-      <h1 class="titulo">{{ loggedIn ? 'Você está logado!' : 'Faça login para continuar' }}</h1>
-    </div>
-    <form @submit.prevent="submitForm">
-      <div class="margem-b-4">
-        <label class="rotulo" for="username">
+  <div class="">
+    <LinkTree v-if="loggedIn" :user="user" />
+    <form @submit.prevent="submitForm" class="" v-else>
+      <div class="tw-mb-4">
+        <label class="tw-block tw-text-gray-700 tw-text-sm tw-font-bold tw-mb-2" for="username">
           Nome de usuário
         </label>
-        <input class="campo" v-model="username" type="text" placeholder="Nome de usuário" />
+        <input class="tw-appearance-none tw-border tw-rounded tw-w-full tw-py-2 tw-px-3 tw-text-gray-700 tw-leading-tight tw-focus:outline-none tw-focus:shadow-outline" v-model="username" type="text" placeholder="Nome de usuário" />
       </div>
-      <div class="margem-b-4">
-        <label class="rotulo" for="password">
+      <div class="tw-mb-4">
+        <label class="tw-block tw-text-gray-700 tw-text-sm tw-font-bold tw-mb-2" for="password">
           Senha
         </label>
-        <input class="campo" v-model="password" type="password" placeholder="Senha" />
+        <input class="tw-appearance-none tw-border tw-rounded tw-w-full tw-py-2 tw-px-3 tw-text-gray-700 tw-leading-tight tw-focus:outline-none tw-focus:shadow-outline" v-model="password" type="password" placeholder="Senha" />
       </div>
-      <div class="">
-        <button class="botao" type="submit">
+      <div class="tw-flex tw-items-center tw-justify-between">
+        <button class="tw-bg-blue-500 tw-hover:bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded tw-focus:outline-none tw-focus:shadow-outline" type="submit">
           Entrar
         </button>
       </div>
     </form>
-    <p class="paragrafo-erro" v-if="errorMessage">{{ errorMessage }}</p>
+    <p class="tw-text-red-500 tw-text-xs tw-italic tw-mt-2" v-if="errorMessage">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
 import axios from 'axios';
+import { getUser } from './getUser';
+import LinkTree from './LinkTree.vue';
+
 
 export default defineComponent({
+  components: {
+    LinkTree
+  },
   setup() {
     const visible = ref(false);
     const username = ref('');
@@ -38,12 +42,14 @@ export default defineComponent({
     const errorMessage = ref('');
     const loggedIn = ref(false); // novo estado para gerenciar o login
     const apiURL = 'http://127.0.0.1:8000/'
+    const user = ref(null);
 
     const state = reactive({
       currentTab: null
     });
 
     const submitForm = async () => {
+      errorMessage.value = '';
       try {
         const options = {
           method: 'POST',
@@ -53,11 +59,22 @@ export default defineComponent({
         };
 
         axios.request(options).then(function (response) {
-          // console.log(response.data.token)
-          localStorage.setItem('token', response.data.token);
+          chrome.storage.local.set({ token: response.data.token }, function () {
+            console.log('O valor foi definido para o token');
 
-          // Atualiza o estado para indicar que o login foi bem-sucedido
-          loggedIn.value = true;
+            chrome.storage.local.get(['token'], function (result) {
+              const token = result.token;
+
+              getUser(token)
+                .then(data => {
+                  user.value = data.user;
+                  loggedIn.value = true;
+                })
+                .catch(error => {
+                  errorMessage.value = error.message;
+                });
+            });
+          });
         }).catch(function (error) {
           let errors = [];
           for (let key in error.response.data.errors) {
@@ -77,6 +94,7 @@ export default defineComponent({
       errorMessage,
       submitForm,
       loggedIn, // retornar o estado de login
+      user,
       ...toRefs(state)
     };
   }

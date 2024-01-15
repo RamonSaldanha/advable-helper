@@ -1,6 +1,15 @@
 module.exports = {
-  purge: ['src/**/*.vue'],
+  corePlugins: {
+    preflight: false,
+  },
+  purge: {
+    content: ["src/**/*.vue"],
+    options: {
+      whitelist: ["tw-*"],
+    },
+  },
   darkMode: false, // or 'media' or 'class'
+  prefix: "tw-",
   theme: {
     extend: {},
   },
@@ -8,4 +17,4 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-}
+};

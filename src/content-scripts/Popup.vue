@@ -1,14 +1,15 @@
 <template>
-  <div class="fixed top-0 right-0 m-6 z-50 flex items-center justify-center" v-show="visible">
-    <div class="popup bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" >
+  <div class="fixed tw-top-0 tw-right-0 tw-m-6 tw-flex tw-items-center tw-justify-center" v-show="visible">
+    <div class="popup tw-bg-white tw-shadow-md tw-rounded tw-px-8 tw-pt-6 tw-pb-8 tw-mb-4" >
       <div class="" v-if="loading">
         <p>Carregando...</p>
       </div>
       <div class="" v-if="loggedIn">
-        <p>Logado!</p>
+        <LinkTree :user="user" />
       </div> 
       <div v-else>
         <LoginPage v-if="!loggedIn" />
+        <p class="tw-text-red-500 tw-text-sm tw-mt-2" v-if="errorMessage">{{ errorMessage }}</p>
       </div>
     </div>
   </div>
@@ -17,48 +18,48 @@
 <script>
 import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
 import LoginPage from "./LoginPage.vue";
-import axios from 'axios';
+import LinkTree from "./LinkTree.vue";
+import { getUser } from './getUser';
 
 export default defineComponent({
   components: {
     LoginPage,
-  },
+    LinkTree
+},
   setup() {
     const visible = ref(false);
     const loggedIn = ref(false); // novo estado para gerenciar o login
-    const apiURL = 'http://127.0.0.1:8000/'
     const loading = ref(true);
     const errorMessage = ref('');
+    const user = ref(null);
     
-
     const state = reactive({
       currentTab: null
     });
 
     onMounted(() => {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      const options = {
-        method: 'GET',
-        url: apiURL + 'api/user',
-        headers: { Authorization: `Bearer ${token}` }
-      };
+      chrome.storage.local.get(['token'], function (result) {
+        const token = result.token;
 
-      axios.request(options).then(response => {
-        loading.value = false;
-        if (response.data.user) {
-          loggedIn.value = true;
-        } else {
-          loggedIn.value = false;
-        }
+        getUser(token)
+          .then(data => {
+            loading.value = false;
+            if (data.user) {
+              loggedIn.value = true;
+              user.value = data.user;
+            } else {
+              loggedIn.value = false;
+            }
 
-        chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
-          state.currentTab = await tab;
-          console.log(state.currentTab);
-        });
-      }).catch(error => {
-        loading.value = false; // Adicione esta linha
-        errorMessage.value = error.message;
+            chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
+              state.currentTab = await tab;
+              console.log(state.currentTab);
+            });
+          })
+          .catch(error => {
+            loading.value = false; // Adicione esta linha
+            // errorMessage.value = error.message;
+          });
       });
     });
 
@@ -67,6 +68,7 @@ export default defineComponent({
       loggedIn, // retornar o estado de login
       loading,
       errorMessage,
+      user,
       ...toRefs(state)
     };
   }
@@ -75,10 +77,12 @@ export default defineComponent({
 
 <style >
 .overlay {
-  @apply fixed inset-0 w-full h-full bg-black bg-opacity-10 z-50;
+  @apply tw-fixed tw-inset-0 tw-w-full tw-h-full tw-bg-black tw-bg-opacity-10;
+  z-index: 9998 !important;
 }
 
 .popup {
-  @apply absolute top-4 right-4 bg-white shadow-lg p-4 rounded-md w-72;
+  @apply tw-absolute tw-top-4 tw-right-4 tw-bg-white tw-shadow-lg tw-p-4 tw-rounded-md;
+  z-index: 9999 !important;
 }
 </style>
