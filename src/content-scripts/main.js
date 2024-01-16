@@ -14,8 +14,14 @@ document.body.appendChild(mountEl);
 
 const vm = createApp(Popup).mount(mountEl);
 
-chrome.runtime.onMessage.addListener(message => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.toggleVisible) {
     vm.visible = !vm.visible;
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "GET_HTML_CONTENT") {
+    sendResponse(document.documentElement.outerHTML);
   }
 });

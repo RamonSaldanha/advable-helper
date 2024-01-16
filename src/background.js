@@ -15,6 +15,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case "POPUP_INIT":
       getCurrentTab().then(sendResponse);
       return true;
+    case "GET_HTML_CONTENT":
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          { type: "GET_HTML_CONTENT" },
+          function (response) {
+            sendResponse(response);
+          },
+        );
+      });
+      return true; // Isso mantém o canal de mensagens aberto para a resposta assíncrona
     default:
       break;
   }

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h1>Olá {{ firstName }}</h1>
-    <p>Você está logado.</p>
-    <p>{{ currentComponent }}</p>
+    <h5 class="adble-title">Olá {{ firstName }}</h5>
+    <component :is="currentComponent"></component>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, computed, watchEffect } from "vue"; // Adicione 'computed' aqui
+import processPage from './processPage.vue';
 
 export default defineComponent({
   name: "LinkTree",
@@ -16,6 +16,9 @@ export default defineComponent({
       type: Object,
       required: true
     }
+  },
+  components: {
+    processPage
   },
   setup(props) {
     const currentUrl = computed(() => window.location.href);
@@ -26,13 +29,15 @@ export default defineComponent({
       }
       return '';
     });
+
     watchEffect(() => {
       if (currentUrl.value.includes('whatsapp')) {
         currentComponent.value = 'MVP';
-      } else if (currentUrl.value.includes('pje1g')) {
-        currentComponent.value = 'Processos';
+      } else if (currentUrl.value.includes('Processo/ConsultaProcesso/Detalhe/')) {
+        currentComponent.value = 'processPage';
       }
-    });    
+    });
+
     return { firstName, currentComponent };
   }
 });

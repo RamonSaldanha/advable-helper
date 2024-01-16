@@ -1,15 +1,16 @@
 <template>
-  <div class="fixed tw-top-0 tw-right-0 tw-m-6 tw-flex tw-items-center tw-justify-center" v-show="visible">
-    <div class="popup tw-bg-white tw-shadow-md tw-rounded tw-px-8 tw-pt-6 tw-pb-8 tw-mb-4" >
+  <div class="adble-popup" v-show="visible">
+    <div class="" >
       <div class="" v-if="loading">
         <p>Carregando...</p>
       </div>
       <div class="" v-if="loggedIn">
         <LinkTree :user="user" />
+        <button class="adble-button" @click="logout">Sair</button>
       </div> 
       <div v-else>
         <LoginPage v-if="!loggedIn" />
-        <p class="tw-text-red-500 tw-text-sm tw-mt-2" v-if="errorMessage">{{ errorMessage }}</p>
+        <p class="adble-alert-yellow" v-if="errorMessage">{{ errorMessage }}</p>
       </div>
     </div>
   </div>
@@ -27,6 +28,7 @@ export default defineComponent({
     LinkTree
 },
   setup() {
+    
     const visible = ref(false);
     const loggedIn = ref(false); // novo estado para gerenciar o login
     const loading = ref(true);
@@ -58,10 +60,17 @@ export default defineComponent({
           })
           .catch(error => {
             loading.value = false; // Adicione esta linha
+            loggedIn.value = false;
             // errorMessage.value = error.message;
           });
       });
     });
+
+    const logout = () => {
+      chrome.storage.local.remove(['token'], function () {
+        loggedIn.value = false;
+      });
+    };
 
     return {
       visible,
@@ -69,20 +78,9 @@ export default defineComponent({
       loading,
       errorMessage,
       user,
+      logout,
       ...toRefs(state)
     };
   }
 });
 </script>
-
-<style >
-.overlay {
-  @apply tw-fixed tw-inset-0 tw-w-full tw-h-full tw-bg-black tw-bg-opacity-10;
-  z-index: 9998 !important;
-}
-
-.popup {
-  @apply tw-absolute tw-top-4 tw-right-4 tw-bg-white tw-shadow-lg tw-p-4 tw-rounded-md;
-  z-index: 9999 !important;
-}
-</style>

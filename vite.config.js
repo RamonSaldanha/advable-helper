@@ -11,13 +11,13 @@ import ViteIcons, { ViteIconsResolver } from "vite-plugin-icons";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src")
-    }
+      "@": resolve(__dirname, "src"),
+    },
   },
   build: {
     rollupOptions: {
-      input: "src/manifest.json"
-    }
+      input: "src/manifest.json",
+    },
   },
   plugins: [
     vue(),
@@ -27,12 +27,12 @@ export default defineConfig({
       customComponentResolvers: [
         // https://github.com/antfu/vite-plugin-icons
         ViteIconsResolver({
-          componentPrefix: ""
+          componentPrefix: "",
           // enabledCollections: ['carbon']
-        })
-      ]
+        }),
+      ],
     }),
     ViteIcons(),
-    chromeExtension()
-  ]
+    chromeExtension(),
+  ],
 });

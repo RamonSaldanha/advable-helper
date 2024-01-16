@@ -1,26 +1,29 @@
 <template>
   <div class="">
-    <LinkTree v-if="loggedIn" :user="user" />
+    <div v-if="loggedIn">
+      <LinkTree  :user="user" />
+      <button class="adble-button" @click="logout">Sair</button>
+    </div>
     <form @submit.prevent="submitForm" class="" v-else>
-      <div class="tw-mb-4">
-        <label class="tw-block tw-text-gray-700 tw-text-sm tw-font-bold tw-mb-2" for="username">
+      <div class="adble-margin-y">
+        <label class="adble-label" for="username">
           Nome de usuário
         </label>
-        <input class="tw-appearance-none tw-border tw-rounded tw-w-full tw-py-2 tw-px-3 tw-text-gray-700 tw-leading-tight tw-focus:outline-none tw-focus:shadow-outline" v-model="username" type="text" placeholder="Nome de usuário" />
+        <input class="adble-input" v-model="username" type="text" placeholder="Nome de usuário" />
       </div>
-      <div class="tw-mb-4">
-        <label class="tw-block tw-text-gray-700 tw-text-sm tw-font-bold tw-mb-2" for="password">
+      <div class="adble-margin-y">
+        <label class="adble-label" for="password">
           Senha
         </label>
-        <input class="tw-appearance-none tw-border tw-rounded tw-w-full tw-py-2 tw-px-3 tw-text-gray-700 tw-leading-tight tw-focus:outline-none tw-focus:shadow-outline" v-model="password" type="password" placeholder="Senha" />
+        <input class="adble-input" v-model="password" type="password" placeholder="Senha" />
       </div>
-      <div class="tw-flex tw-items-center tw-justify-between">
-        <button class="tw-bg-blue-500 tw-hover:bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 tw-rounded tw-focus:outline-none tw-focus:shadow-outline" type="submit">
+      <div class="adble-margin-y">
+        <button class="adble-button" type="submit">
           Entrar
         </button>
       </div>
     </form>
-    <p class="tw-text-red-500 tw-text-xs tw-italic tw-mt-2" v-if="errorMessage">{{ errorMessage }}</p>
+    <p class="adble-alert-yellow" v-if="errorMessage">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -60,8 +63,6 @@ export default defineComponent({
 
         axios.request(options).then(function (response) {
           chrome.storage.local.set({ token: response.data.token }, function () {
-            console.log('O valor foi definido para o token');
-
             chrome.storage.local.get(['token'], function (result) {
               const token = result.token;
 
@@ -87,6 +88,12 @@ export default defineComponent({
       }
     };
 
+    const logout = () => {
+      chrome.storage.local.remove(['token'], function () {
+        loggedIn.value = false;
+      });
+    };
+
     return {
       visible,
       username,
@@ -95,6 +102,7 @@ export default defineComponent({
       submitForm,
       loggedIn, // retornar o estado de login
       user,
+      logout,
       ...toRefs(state)
     };
   }
