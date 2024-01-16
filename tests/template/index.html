@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+  <div class="adble-container">
+    <form action="" method="post">
+      <label class="adble-label" for="username">Nome de usuário:</label><br>
+      <input class="adble-input" type="text" id="username" name="username"><br>
+      <label class="dble-label" for="password">Senha:</label><br>
+      <input class="adble-input" type="password" id="password" name="password"><br>
+      <input class="adble-button" type="submit" value="Entrar">
+    </form>
+  </div>
+</body>
+
+</html>
+
+<script>
+  document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // Aqui você pode adicionar a lógica de validação dos dados do formulário
+
+    window.location.href = 'logged.html';
+  });
+</script>

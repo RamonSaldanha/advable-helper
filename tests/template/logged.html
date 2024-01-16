@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+  <div class="adble-container">
+    <form action="" method="post">
+
+      <label class="adble-label" for="username">Número do processo:</label><br>
+      <input class="adble-input" type="text" id="username" name="username"><br>
+
+      <label class="adble-label" for="username">Jurisdição</label><br>
+      <input class="adble-input" type="text" id="username" name="username"><br>
+
+      <label class="adble-label" for="tribunal">Tribunal</label><br>
+      <select class="adble-input" id="tribunal" name="tribunal">
+        <option value="tjrn">Tribunal de Justiça do RN</option>
+        <option value="tjsp">Tribunal de Justiça de SP</option>
+        <!-- Adicione mais opções conforme necessário -->
+      </select><br>
+
+      <label class="adble-label" for="tribunal">Sistema push</label><br>
+      <select class="adble-input" id="tribunal" name="tribunal">
+        <option value="tjrn">PJE 1ª GRAU</option>
+        <option value="tjsp">Tribunal de Justiça de SP</option>
+        <!-- Adicione mais opções conforme necessário -->
+      </select><br>
+      <details class="adble-details">
+        <summary class="adble-summary">Informações adicionais</summary>
+
+        <!-- Restante do formulário aqui -->
+        <label class="adble-label" for="tribunal">Liminar</label><br>
+        <select class="adble-input" id="tribunal" name="tribunal">
+          <option value="tjrn">Não tem</option>
+          <option value="tjsp">Não</option>
+          <!-- Adicione mais opções conforme necessário -->
+        </select>
+
+        <label class="adble-label" for="tribunal">Sentença</label><br>
+        <select class="adble-input" id="tribunal" name="tribunal">
+          <option value="tjrn">Pendente</option>
+          <option value="tjsp">Não</option>
+          <!-- Adicione mais opções conforme necessário -->
+        </select>
+
+        <label class="adble-label" for="tribunal">Resultado</label><br>
+        <select class="adble-input" id="tribunal" name="tribunal">
+          <option value="tjrn">Pendente</option>
+          <option value="tjsp">Não</option>
+          <!-- Adicione mais opções conforme necessário -->
+        </select>
+      </details>
+
+      <details class="adble-details">
+        <summary class="adble-summary">Partes no processo</summary>
+
+        <div class="adble-person">
+          <span class="adble-name">Nome da Pessoa 1</span>
+          <span class="adble-badge">Polo Ativo</span>
+          <button class="adble-delete-button">Deletar</button>
+        </div>
+
+        <div class="adble-person">
+          <span class="adble-name">Nome da Pessoa 2</span>
+          <span class="adble-badge">Polo Passivo</span>
+          <button class="adble-delete-button">Deletar</button>
+        </div>
+
+        <div class="adble-person">
+          <span class="adble-name">Nome da Pessoa 3</span>
+          <span class="adble-badge">Polo Ativo</span>
+          <button class="adble-delete-button">Deletar</button>
+        </div>
+
+      </details>
+      </details>
+
+      <input class="adble-button" type="submit" value="Cadastrar">
+    </form>
+  </div>
+</body>
+
+</html>
+
+<script>
+  document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // Aqui você pode adicionar a lógica de validação dos dados do formulário
+
+    window.location.href = 'logged.html';
+  });
+  document.querySelectorAll('.adble-delete-button').forEach(function (button) {
+    button.addEventListener('click', function (event) {
+      event.target.parentNode.remove();
+    });
+  });
+</script>
