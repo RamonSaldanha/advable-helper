@@ -10,6 +10,12 @@ async function getCurrentTab() {
   return tab;
 }
 
+async function getCurrentRoot() {
+  const tab = await getCurrentTab();
+  const url = new URL(tab.url);
+  return url.origin;
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.type) {
     case "POPUP_INIT":
@@ -26,7 +32,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         );
       });
       return true; // Isso mantém o canal de mensagens aberto para a resposta assíncrona
-    default:
+    case "GET_CURRENT_ROOT":
+      getCurrentRoot().then(sendResponse);
+      return true;
+    
+      default:
       break;
   }
 });

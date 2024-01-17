@@ -29,6 +29,7 @@
 </template>
 <script>
 import { defineComponent, ref, onMounted } from "vue"; // Adicione 'computed' aqui
+import { getProcess } from './getProcess';
 
 export default defineComponent({
   name: "processPage",
@@ -58,6 +59,23 @@ export default defineComponent({
       const poloPassivo = getPoloPassivo(doc).map(person => ({ ...person, polo: 'Passivo' }));
 
       process.value.people = [...poloAtivo, ...poloPassivo];
+      
+      const tabUrl = await new Promise(resolve => {
+        chrome.runtime.sendMessage({ type: "GET_CURRENT_ROOT" }, response => {
+          resolve(response);
+        });
+      });
+      
+      const token = await new Promise(resolve => {
+        chrome.storage.local.get(['token'], function (result) {
+          resolve(result.token);
+        });
+      });
+      
+      getProcess(process.value.number, tabUrl, token).then(data => {
+        console.log(data);
+      });
+    
     });
 
     const deletePerson = (index) => {
@@ -72,7 +90,6 @@ export default defineComponent({
 
       return resultado ? resultado[1] : 'Número do processo não encontrado';
     };
-
 
     const getAutuacao = (doc) => {
       let padrao = /Autuação<\/dt>\s*<dd>(.*?)<\/dd>/;

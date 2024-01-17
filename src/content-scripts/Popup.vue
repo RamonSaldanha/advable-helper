@@ -26,7 +26,7 @@ export default defineComponent({
   components: {
     LoginPage,
     LinkTree
-},
+  },
   setup() {
     
     const visible = ref(false);
@@ -55,7 +55,7 @@ export default defineComponent({
 
             chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
               state.currentTab = await tab;
-              console.log(state.currentTab);
+              // console.log(state.currentTab);
             });
           })
           .catch(error => {
