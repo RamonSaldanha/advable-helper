@@ -1,6 +1,13 @@
 <template>
     <div>
-      <form action="" method="post">
+      <p v-if="processExists"  style="display: flex; align-items: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;"  width="16" height="16" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+          <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+        </svg>
+        Processo já cadastrado
+      </p>
+      <form action="" method="post" v-else >
         <label class="adble-label" for="processNumber">Número do processo:</label><br>
         <input class="adble-input" type="text" id="processNumber" name="processNumber" v-model="process.number"><br>
 
@@ -38,9 +45,11 @@ export default defineComponent({
     const process = ref({
       number: "",
       jurisdiction: "",
-      people: []
-      // Adicione mais campos conforme necessário
+      people: [],
+      autuacao: "",
     });
+
+    const processExists = ref(false);
 
     onMounted(async () => {
       const htmlContent = await new Promise(resolve => {
@@ -54,6 +63,7 @@ export default defineComponent({
 
       process.value.number = getNumeroProcesso(doc);
       process.value.jurisdiction = getOrgaoJulgador(doc);
+      process.value.autuacao = getAutuacao(doc);
 
       const poloAtivo = getPoloAtivo(doc).map(person => ({ ...person, polo: 'Ativo' }));
       const poloPassivo = getPoloPassivo(doc).map(person => ({ ...person, polo: 'Passivo' }));
@@ -65,7 +75,7 @@ export default defineComponent({
           resolve(response);
         });
       });
-      
+
       const token = await new Promise(resolve => {
         chrome.storage.local.get(['token'], function (result) {
           resolve(result.token);
@@ -73,7 +83,9 @@ export default defineComponent({
       });
       
       getProcess(process.value.number, tabUrl, token).then(data => {
-        console.log(data);
+        if(data.process){
+          processExists.value = true;
+        }
       });
     
     });
@@ -167,7 +179,7 @@ export default defineComponent({
       return poloPassivo;
     };
 
-    return { deletePerson, process };
+    return { deletePerson, process, processExists };
   }
 });
 

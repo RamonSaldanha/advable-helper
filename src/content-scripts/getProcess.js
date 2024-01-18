@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export function getProcess(processNum, systemUrl, token) {
-  console.log(processNum, systemUrl, token)
   return new Promise((resolve, reject) => {
     const apiURL = "http://127.0.0.1:8000/";
     const options = {
