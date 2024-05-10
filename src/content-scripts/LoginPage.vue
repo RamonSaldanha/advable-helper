@@ -18,9 +18,9 @@
         <input class="adble-input" v-model="password" type="password" placeholder="Senha" />
       </div>
       <div class="adble-margin-y">
-        <button class="adble-button" type="submit">
+        <Button class="adble-button" type="submit">
           Entrar
-        </button>
+        </Button>
       </div>
     </form>
     <p class="adble-alert-yellow" v-if="errorMessage">{{ errorMessage }}</p>
@@ -32,6 +32,9 @@ import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
 import axios from 'axios';
 import { getUser } from './getUser';
 import LinkTree from './LinkTree.vue';
+import Button from './Components/Button.vue';
+import { API_URL, LOGIN_ENDPOINT } from "../apiConfig";
+
 
 
 export default defineComponent({
@@ -44,7 +47,6 @@ export default defineComponent({
     const password = ref('');
     const errorMessage = ref('');
     const loggedIn = ref(false); // novo estado para gerenciar o login
-    const apiURL = 'http://127.0.0.1:8000/'
     const user = ref(null);
 
     const state = reactive({
@@ -56,7 +58,7 @@ export default defineComponent({
       try {
         const options = {
           method: 'POST',
-          url: apiURL + 'api/entrar',
+          url: API_URL + LOGIN_ENDPOINT,
           headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           data: { email: username.value, password: password.value }
         };

@@ -1,12 +1,12 @@
 // getUser.js
 import axios from "axios";
+import { API_URL, GET_USER } from "../apiConfig";
 
 export function getUser(token) {
   return new Promise((resolve, reject) => {
-    const apiURL = "http://127.0.0.1:8000/";
     const options = {
       method: "GET",
-      url: apiURL + "api/user",
+      url: API_URL + GET_USER,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

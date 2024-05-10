@@ -1,16 +1,12 @@
 import axios from "axios";
-import { API_URL, CONSULT_UNIQUE_PROCESS } from "../apiConfig";
+import { API_URL, CREATE_PROCESS } from "../apiConfig";
 
-
-export function getProcess(processNum, systemUrl, token) {
+export function addProcess(data, token) {
   return new Promise((resolve, reject) => {
     const options = {
       method: "POST",
-      url: API_URL + CONSULT_UNIQUE_PROCESS,
-      data: {
-        processNum: processNum,
-        systemUrl: systemUrl,
-      },
+      url: API_URL + CREATE_PROCESS,
+      data: data,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

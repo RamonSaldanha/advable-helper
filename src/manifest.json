@@ -1,5 +1,5 @@
 {
-    "name": "Awesome Extension",
+    "name": "Advable Extension",
     "version": "1.0.0",
     "manifest_version": 3,
     "action": {
@@ -8,7 +8,7 @@
           "48": "assets/icon48.png",
           "128": "assets/icon128.png"
         },
-        "default_title": "Awesome Extension"
+        "default_title": "Advable Extension"
       },
     "icons": {
         "16": "assets/icon16.png",

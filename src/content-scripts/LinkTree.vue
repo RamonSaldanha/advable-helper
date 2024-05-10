@@ -1,7 +1,7 @@
 <template>
   <div>
     <h5 class="adble-title">Olá {{ firstName }}</h5>
-    <component :is="currentComponent"></component>
+    <component :is="currentComponent" :user="user"></component>
   </div>
 </template>
 

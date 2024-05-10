@@ -26,6 +26,14 @@
   margin-bottom: .85rem;
 }
 
+.adble-alert-yellow{
+  padding: 1rem;
+  background-color: #f9d71c; /* Cor amarela */
+  color: black;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
 .adble-popup {
   position: fixed;
   top: 0;
@@ -34,9 +42,12 @@
   background-color: white;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.25rem;
-  width: 365px;
+  width: 385px;
   padding: 2rem;
   z-index: 9999;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .adble-container {
@@ -119,7 +130,7 @@
   background-color: #dc3545;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 5px;
   cursor: pointer;
   font-size: 0.9em;
   border-radius: 3px;
