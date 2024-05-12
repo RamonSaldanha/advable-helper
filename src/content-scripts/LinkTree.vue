@@ -7,7 +7,8 @@
 
 <script>
 import { defineComponent, ref, computed, watchEffect } from "vue"; // Adicione 'computed' aqui
-import processPage from './processPage.vue';
+import processPagePJESeabra from './processPagePJESeabra.vue';
+import processPagePJETRT from './processPagePJETRT.vue';
 
 export default defineComponent({
   name: "LinkTree",
@@ -18,7 +19,8 @@ export default defineComponent({
     }
   },
   components: {
-    processPage
+    processPagePJESeabra,
+    processPagePJETRT
   },
   setup(props) {
     const currentUrl = computed(() => window.location.href);
@@ -34,7 +36,10 @@ export default defineComponent({
       if (currentUrl.value.includes('whatsapp')) {
         currentComponent.value = 'MVP';
       } else if (currentUrl.value.includes('Processo/ConsultaProcesso/Detalhe/')) {
-        currentComponent.value = 'processPage';
+        currentComponent.value = 'processPagePJESeabra';
+      } else if ( currentUrl.value.includes('jus.br/pjekz/processo/')) {
+        console.log('TRT')
+        currentComponent.value = 'processPagePJETRT';
       }
     });
 
