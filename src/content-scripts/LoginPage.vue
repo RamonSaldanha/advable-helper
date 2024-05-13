@@ -1,8 +1,8 @@
 <template>
   <div class="">
     <div v-if="loggedIn">
-      <LinkTree  :user="user" />
-      <button class="adble-button" @click="logout">Sair</button>
+      <LinkTree :user="user" />
+      <Button label="Sair" @confirm="logout">Sair</Button>
     </div>
     <form @submit.prevent="submitForm" class="" v-else>
       <div class="adble-margin-y">
@@ -18,9 +18,7 @@
         <input class="adble-input" v-model="password" type="password" placeholder="Senha" />
       </div>
       <div class="adble-margin-y">
-        <Button class="adble-button" type="submit">
-          Entrar
-        </Button>
+        <Button label="Entrar" type="submit" />
       </div>
     </form>
     <p class="adble-alert-yellow" v-if="errorMessage">{{ errorMessage }}</p>
@@ -35,11 +33,10 @@ import LinkTree from './LinkTree.vue';
 import Button from './Components/Button.vue';
 import { API_URL, LOGIN_ENDPOINT } from "../apiConfig";
 
-
-
 export default defineComponent({
   components: {
-    LinkTree
+    LinkTree,
+    Button
   },
   setup() {
     const visible = ref(false);

@@ -20,7 +20,7 @@ export default defineComponent({
   props: {
     type: {
       type: String,
-      default: 'submit',
+      default: 'button',
     },
     color: {
       type: String,
@@ -45,6 +45,7 @@ export default defineComponent({
     const confirming = ref(false);
 
     const handleClick = () => {
+      if(props.type === 'submit') return;
       if (confirming.value) {
         confirming.value = false;
         emit('confirm'); // Use emit em vez de this.$emit
@@ -60,3 +61,17 @@ export default defineComponent({
   },
 })
 </script>
+<style>
+.adble-button {
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.adble-button:hover {
+  background-color: #0056b3;
+}
+</style>

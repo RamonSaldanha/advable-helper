@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h5 class="adble-title">Olá {{ firstName }}</h5>
+    <h5 class="adble-title">Olá Dr(a). {{ firstName }}</h5>
     <component :is="currentComponent" :user="user"></component>
   </div>
 </template>

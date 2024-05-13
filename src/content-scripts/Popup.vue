@@ -6,7 +6,7 @@
       </div>
       <div class="" v-if="loggedIn">
         <LinkTree :user="user" />
-        <button class="adble-button" @click="logout">Sair</button>
+        <Button @click="logout" :confirm="true">Sair</Button>
       </div> 
       <div v-else>
         <LoginPage v-if="!loggedIn" />
@@ -20,12 +20,14 @@
 import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
 import LoginPage from "./LoginPage.vue";
 import LinkTree from "./LinkTree.vue";
+import Button from "./Components/Button.vue";
 import { getUser } from './getUser';
 
 export default defineComponent({
   components: {
     LoginPage,
-    LinkTree
+    LinkTree,
+    Button
   },
   setup() {
     

@@ -7,11 +7,13 @@
         <strong>{{ key }}:</strong> {{ value }}
       </div>
     </div>
+    <Loading v-if="loading" />
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, onMounted } from "vue";
+import Loading from './Components/Loading.vue';
 
 export default defineComponent({
   name: "processPagePJESeabra",
@@ -21,7 +23,11 @@ export default defineComponent({
       required: true
     }
   },
+  components: {
+    Loading
+  },
   setup() {
+    const loading = ref(true);
     const processDetails = ref(null);
 
     const getProcessDetails = (htmlContent) => {
@@ -67,6 +73,7 @@ export default defineComponent({
         const doc = parser.parseFromString(htmlContent, 'text/html');
         console.log(doc.querySelector('.oj-cargo').textContent);
         // processDetails.value = getProcessDetails(htmlContent);
+        loading.value = false;
       }, 3000); // Espera 3 segundos antes de executar o código dentro do setTimeout
     });
   }
