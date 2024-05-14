@@ -6,7 +6,7 @@
       </div>
       <div class="" v-if="loggedIn">
         <LinkTree :user="user" />
-        <Button @click="logout" :confirm="true">Sair</Button>
+        <Button @confirm="logout" label="Sair" />
       </div> 
       <div v-else>
         <LoginPage v-if="!loggedIn" />

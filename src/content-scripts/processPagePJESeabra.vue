@@ -85,6 +85,7 @@ import { defineComponent, ref, onMounted, computed } from "vue"; // Adicione 'co
 import { getProcess } from './getProcess';
 import Button from './Components/Button.vue';
 import { addProcess } from './addProcess';
+import { buildData } from './utils'; 
 
 export default defineComponent({
 name: "processPage",
@@ -360,14 +361,7 @@ setup(props) {
       });
     });
 
-    const data = {
-      process_num: process.value.number,
-      jurisdiction: process.value.jurisdiction,
-      people: filteredPeople,
-      autuacao: process.value.autuacao,
-      details: process.value.details,
-      current_url: currentUrl
-    };
+    const data = buildData(process, filteredPeople, currentUrl);
 
     chrome.storage.local.get(['token'], function (result) {
       const token = result.token;
