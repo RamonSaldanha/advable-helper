@@ -1,12 +1,10 @@
 <template>
   <div>
     <h1>TRT</h1>
-    {{ processDetails }}
     <div v-if="processDetails">
-      <div v-for="(value, key) in processDetails" :key="key">
-        <strong>{{ key }}:</strong> {{ value }}
-      </div>
+      <ProcessDatatable :processDetails="processDetails" />
     </div>
+    <Button label="capturar" @confirm="capture" />
     <Loading v-if="loading" />
   </div>
 </template>
@@ -14,6 +12,9 @@
 <script>
 import { defineComponent, ref, onMounted } from "vue";
 import Loading from './Components/Loading.vue';
+import Button from './Components/Button.vue';
+import ProcessDatatable from './Components/ProcessDatatable.vue';
+import { waitForElement, delay } from './utils';
 
 export default defineComponent({
   name: "processPagePJESeabra",
@@ -24,58 +25,59 @@ export default defineComponent({
     }
   },
   components: {
-    Loading
+    Loading,
+    Button,
+    ProcessDatatable
   },
   setup() {
-    const loading = ref(true);
+    const loading = ref(false);
     const processDetails = ref(null);
 
-    const getProcessDetails = (htmlContent) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
-      const texto = doc.querySelector('#processo');
-      const objeto = {};
-      console.log(texto)
+    function extrairDadosProcesso() {
+      const dados = {};
+      function encontrarDado(labelText) {
+          const dts = Array.from(document.querySelectorAll('dt'));
+          const dt = dts.find(dt => dt.textContent.trim().includes(labelText));
+          if (!dt) return null;
+          return dt.nextElementSibling ? dt.nextElementSibling.textContent.trim() : null;
+      }
+      dados['Órgão julgador'] = encontrarDado("Órgão julgador:");
+      dados['Número do Processo'] = encontrarDado("Número do Processo:");
+      dados['Distribuído'] = encontrarDado("Distribuído:");
+      dados['Autuado'] = encontrarDado("Autuado:");
+      dados['Valor da causa'] = encontrarDado("Valor da causa:");
+      dados['Prioridade(s)'] = encontrarDado("Prioridade(s):");
+      dados['justica gratuita'] = document.querySelector('i.far.fa-check-square') ? "Processo com justiça gratuita deferida" : "Não disponível";
+      const assuntosDts = Array.from(document.querySelectorAll('dt')).filter(dt => dt.textContent.trim().includes("Assunto(s):"));
+      const assuntosSet = new Set(assuntosDts.map(dt => dt.nextElementSibling ? dt.nextElementSibling.textContent.trim() : ""));
+      dados['Assunto(s)'] = Array.from(assuntosSet);  // Convertendo o conjunto de volta para um array
 
-      // Função para extrair informação com regex e verificar se a correspondência foi bem-sucedida
-      function extrairInformacao(regex) {
-          const match = texto.match(regex);
-          return match ? match[1].trim() : null;
+      return dados;
+  }
+
+
+    async function capture() {
+
+      try {
+        loading.value = true;
+        const modalProcess = document.querySelector("pje-descricao-processo > span:nth-child(2)");
+        modalProcess.click();
+        await waitForElement('#processo');
+        await delay(1500);
+        processDetails.value = extrairDadosProcesso();
+        loading.value = false;
+
+      } catch (error) {
+        console.error(error);
       }
 
-      objeto["Órgão julgador"] = extrairInformacao(/Órgão julgador:\s*(.*?)\s*Número do Processo:/s);
-      objeto["Número do Processo"] = extrairInformacao(/Número do Processo:\s*(.*?)\s*Distribuído:/s);
-      objeto["Distribuído"] = extrairInformacao(/Distribuído:\s*(.*?)\s*Autuado:/s) || null;
-      objeto["Autuado"] = extrairInformacao(/Autuado:\s*(.*?)\s*Valor da causa:/s);
-      objeto["Valor da causa"] = "R$ " + (extrairInformacao(/Valor da causa:\s*(.*?)\s*Prioridade\(s\):/s) || "").replace(/\s+/g, '');
-      objeto["Prioridade(s)"] = extrairInformacao(/Prioridade\(s\):\s*(.*?)\s*Processo com justiça gratuita deferida/s);
-      objeto["justica gratuita"] = texto.includes("Processo com justiça gratuita deferida") ? "Processo com justiça gratuita deferida" : null;
-      
-      // Extração de assuntos de uma forma mais segura
-      const assuntosMatch = texto.match(/Assunto\(s\):\s*([\s\S]*?)$/);
-      if (assuntosMatch && assuntosMatch[1]) {
-          objeto["Assunto(s)"] = assuntosMatch[1].split('\n').map(s => s.trim()).filter(s => s.length > 0);
-      } else {
-          objeto["Assunto(s)"] = [];
-      }
-
-      return objeto;
     }
 
-    onMounted(async () => {
-      setTimeout(async () => {
-        const htmlContent = await new Promise(resolve => {
-          chrome.runtime.sendMessage({ type: "GET_HTML_CONTENT" }, response => {
-            resolve(response);
-          });
-        });
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
-        console.log(doc.querySelector('.oj-cargo').textContent);
-        // processDetails.value = getProcessDetails(htmlContent);
-        loading.value = false;
-      }, 3000); // Espera 3 segundos antes de executar o código dentro do setTimeout
-    });
+    return {
+      processDetails,
+      loading,
+      capture
+    };
   }
 });
 </script>
