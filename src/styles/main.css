@@ -26,14 +26,6 @@
   margin-bottom: .85rem;
 }
 
-.adble-alert-yellow{
-  padding: 1rem;
-  background-color: #f9d71c; /* Cor amarela */
-  color: black;
-  border-radius: 0.25rem;
-  margin-bottom: 1rem;
-}
-
 .adble-popup {
   position: fixed;
   top: 0;

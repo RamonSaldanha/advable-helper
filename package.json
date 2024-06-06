@@ -18,6 +18,8 @@
     "autoprefixer": "^10.3.1",
     "nodemon": "^3.0.2",
     "postcss": "^8.3.6",
+    "sass": "^1.77.4",
+    "sass-loader": "^14.2.1",
     "tailwindcss": "^2.2.7",
     "vite": "^2.4.4",
     "vite-plugin-chrome-extension": "^0.0.7",

@@ -21,12 +21,13 @@
         <Button label="Entrar" type="submit" />
       </div>
     </form>
-    <p class="adble-alert-yellow" v-if="errorMessage">{{ errorMessage }}</p>
+    <Alert v-if="errorMessage" :message="errorMessage" />
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
+import { defineComponent, ref, reactive, toRefs } from "vue";
+import Alert from './Components/Alert.vue';
 import axios from 'axios';
 import { getUser } from './getUser';
 import LinkTree from './LinkTree.vue';
@@ -36,7 +37,8 @@ import { API_URL, LOGIN_ENDPOINT } from "../apiConfig";
 export default defineComponent({
   components: {
     LinkTree,
-    Button
+    Button,
+    Alert
   },
   setup() {
     const visible = ref(false);
