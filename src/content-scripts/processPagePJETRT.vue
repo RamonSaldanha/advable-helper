@@ -88,81 +88,47 @@ export default defineComponent({
     }
 
 
-    async function capture() {
-      try {
-        loading.value = true;
-
-        const modalProcess = document.querySelector("pje-descricao-processo > span:nth-child(2)") || document.querySelector("#titulo-detalhes > h1");
-
-        if (!modalProcess) {
-          throw new Error('Nenhum elemento encontrado');
-        }
-
-        modalProcess.click();
-
-        const processElement = await Promise.race([
-          waitForElement('#processo'),
-          waitForElement('#colunas-dados-processo')
-        ]);
-
-        if (!processElement) {
-          throw new Error('Nenhum elemento de processo encontrado');
-        }
-
-        await delay(1500);
-        processDetails.value = extrairDadosProcesso();
-        partesProcesso.value = getPartesProcesso();
-        
-        loading.value = false;
-
-      } catch (error) {
-        console.error(error);
-        loading.value = false;  // Certifique-se de parar o carregamento em caso de erro
-      }
-    }
-
-    const getPartesProcesso = () => {
+    const extractPartesProcesso = (rootSelector, categoriaSelector, nomeSelector, documentoSelector, enderecoSelector, representanteSelector) => {
       const categorias = {
         PoloAtivo: [],
         PoloPassivo: [],
         OutrosInteressados: []
       };
 
-      const seçõesPartes = document.querySelectorAll('#processo-partes .is-item-pilha-parte');
+      const seçõesPartes = document.querySelectorAll(rootSelector);
 
       seçõesPartes.forEach(seção => {
-        const categoriaElemento = seção.querySelector('.polo .polo-header');
+        const categoriaElemento = seção.querySelector(categoriaSelector);
         if (!categoriaElemento) return;
 
         const categoriaTexto = categoriaElemento.textContent.trim();
         let categoriaArray;
 
-        if (categoriaTexto.includes('Polo Ativo')) {
+        if (categoriaTexto.toLowerCase().includes('polo ativo')) {
           categoriaArray = categorias.PoloAtivo;
-        } else if (categoriaTexto.includes('Polo Passivo')) {
+        } else if (categoriaTexto.toLowerCase().includes('polo passivo')) {
           categoriaArray = categorias.PoloPassivo;
-        } else if (categoriaTexto.includes('Outros Interessados')) {
+        } else if (categoriaTexto.toLowerCase().includes('outros interessados')) {
           categoriaArray = categorias.OutrosInteressados;
         }
 
-        const elementosPartes = seção.querySelectorAll('#partes-processo-autuacao ul.sem-padding.sem-margem-top.sem-marcacao');
+        const elementosPartes = seção.querySelectorAll('ul.sem-padding.sem-margem-top.sem-marcacao');
 
         elementosPartes.forEach(elemento => {
-          const reclamadoNomeElement = elemento.querySelector('pje-nome-parte .mat-tooltip-trigger.upperCase.negrito.cursor-pointer');
-          const documentoElement = Array.from(elemento.querySelectorAll('span.ng-star-inserted')).find(el => el.textContent.includes('CPF') || el.textContent.includes('CNPJ'));
-          const enderecoElements = Array.from(elemento.querySelectorAll('span.ng-star-inserted')).filter(el => el.textContent.includes('CEP'));
+          const reclamadoNomeElement = elemento.querySelector(nomeSelector);
+          const documentoElement = Array.from(elemento.querySelectorAll(documentoSelector)).find(el => el.textContent.includes('CPF') || el.textContent.includes('CNPJ') || el.textContent.includes('CPJ'));
+          const enderecoElements = Array.from(elemento.querySelectorAll(enderecoSelector)).filter(el => el.textContent.includes('CEP'));
 
           const reclamadoNome = reclamadoNomeElement ? reclamadoNomeElement.textContent.trim() : 'Nome não encontrado';
 
-          const documentoMatch = documentoElement ? documentoElement.textContent.match(/(CPF|CNPJ):\s*([\d\.\-\/]+)/) : null;
+          const documentoMatch = documentoElement ? documentoElement.textContent.match(/(CPF|CNPJ|CPJ):\s*([\d\.\-\/]+)/) : null;
           const documento = documentoMatch ? documentoMatch[2] : 'Sem documento';
           const tipo = documentoMatch ? documentoMatch[1] : 'Sem documento';
 
           const endereco = enderecoElements.map(el => el.textContent.trim()).join(' ');
 
-          // Obter os representantes dentro do ul.partes-hierarquia
           const representantes = [];
-          const representantesLi = elemento.querySelectorAll('.partes-hierarquia .partes-representante span');
+          const representantesLi = elemento.querySelectorAll(representanteSelector);
           representantesLi.forEach(li => {
             const nomeAdvogado = li.textContent.trim();
             if (nomeAdvogado.includes('(ADVOGADO)')) {
@@ -185,6 +151,68 @@ export default defineComponent({
       });
 
       return categorias;
+    };
+
+    const PartesProcessoTRTVersaoConsultaUm = () => {
+      return extractPartesProcesso(
+        '#processo-partes .is-item-pilha-parte',
+        '.polo .polo-header',
+        'pje-nome-parte .mat-tooltip-trigger.upperCase.negrito.cursor-pointer',
+        'span.ng-star-inserted',
+        'span.ng-star-inserted',
+        '.partes-hierarquia .partes-representante span'
+      );
+    };
+
+    const PartesProcessoTRTVersaoConsultaDois = () => {
+      return extractPartesProcesso(
+        '#colunas-dados-processo .coluna-polo',
+        '.titulo-polo h3',
+        '.nome-parte.parte-documento-valido',
+        'span.ng-star-inserted',
+        'span.ng-star-inserted',
+        '.partes-hierarquia .partes-representante span'
+      );
+    };
+
+    const capture = async () => {
+      try {
+        loading.value = true;
+
+        const modalProcess = document.querySelector("pje-descricao-processo > span:nth-child(2)") || document.querySelector("#titulo-detalhes > h1");
+
+        if (!modalProcess) {
+          throw new Error('Nenhum elemento encontrado');
+        }
+
+        modalProcess.click();
+
+        const processElement = await Promise.race([
+          waitForElement('#processo'),
+          waitForElement('#colunas-dados-processo')
+        ]);
+
+        if (!processElement) {
+          throw new Error('Nenhum elemento de processo encontrado');
+        }
+
+        console.log('Elemento de processo encontrado: ' + processElement.id);
+
+        await delay(1500);
+
+        processDetails.value = extrairDadosProcesso();
+
+        if (processElement.id === 'processo') {
+          partesProcesso.value = PartesProcessoTRTVersaoConsultaUm();
+        } else if (processElement.id === 'colunas-dados-processo') {
+          partesProcesso.value = PartesProcessoTRTVersaoConsultaDois();
+        }
+
+        loading.value = false;
+      } catch (error) {
+        console.error(error);
+        loading.value = false;  // Certifique-se de parar o carregamento em caso de erro
+      }
     };
 
     return {
