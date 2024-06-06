@@ -37,8 +37,7 @@ export default defineComponent({
         currentComponent.value = 'MVP';
       } else if (currentUrl.value.includes('Processo/ConsultaProcesso/Detalhe/')) {
         currentComponent.value = 'processPagePJESeabra';
-      } else if ( currentUrl.value.includes('jus.br/pjekz/processo/')) {
-        console.log('TRT')
+      } else if ( currentUrl.value.includes('jus.br/pjekz/processo/') || currentUrl.value.includes('jus.br/consultaprocessual/detalhe-processo/') ) {
         currentComponent.value = 'processPagePJETRT';
       }
     });

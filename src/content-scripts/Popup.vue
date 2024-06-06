@@ -1,10 +1,11 @@
 <template>
   <div class="adble-popup" v-show="visible">
-    <div class="" >
-      <div class="" v-if="loading">
+    <CloseButton @close="closePopup" />
+    <div>
+      <div v-if="loading">
         <p>Carregando...</p>
       </div>
-      <div class="" v-if="loggedIn">
+      <div v-if="loggedIn">
         <LinkTree :user="user" />
         <Button @confirm="logout" label="Sair" />
       </div> 
@@ -21,18 +22,19 @@ import { defineComponent, ref, onMounted, reactive, toRefs } from "vue";
 import LoginPage from "./LoginPage.vue";
 import LinkTree from "./LinkTree.vue";
 import Button from "./Components/Button.vue";
+import CloseButton from "./Components/ClosePopUpButton.vue";
 import { getUser } from './getUser';
 
 export default defineComponent({
   components: {
     LoginPage,
     LinkTree,
-    Button
+    Button,
+    CloseButton
   },
   setup() {
-    
-    const visible = ref(false);
-    const loggedIn = ref(false); // novo estado para gerenciar o login
+    const visible = ref(false);  
+    const loggedIn = ref(false);
     const loading = ref(true);
     const errorMessage = ref('');
     const user = ref(null);
@@ -57,13 +59,12 @@ export default defineComponent({
 
             chrome.runtime.sendMessage({ type: "POPUP_INIT" }, async tab => {
               state.currentTab = await tab;
-              // console.log(state.currentTab);
             });
           })
           .catch(error => {
-            loading.value = false; // Adicione esta linha
+            loading.value = false;
             loggedIn.value = false;
-            // errorMessage.value = error.message;
+            errorMessage.value = error.message;
           });
       });
     });
@@ -74,15 +75,21 @@ export default defineComponent({
       });
     };
 
+    const closePopup = () => {
+      visible.value = false;
+    };
+
     return {
       visible,
-      loggedIn, // retornar o estado de login
+      loggedIn,
       loading,
       errorMessage,
       user,
       logout,
+      closePopup,
       ...toRefs(state)
     };
   }
 });
 </script>
+
