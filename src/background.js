@@ -1,3 +1,38 @@
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs.length > 0) {
+      chrome.tabs.reload(tabs[0].id);
+    }
+  });
+});
+
+const reloadTxtPath = 'reload.txt';
+
+let lastReloadTime = null;
+
+function checkForReload() {
+  fetch(chrome.runtime.getURL(reloadTxtPath))
+    .then(response => response.text())
+    .then(text => {
+      if (lastReloadTime && lastReloadTime !== text) {
+        chrome.runtime.reload();
+      }
+      lastReloadTime = text;
+    })
+    .catch(error => console.error('Error checking reload:', error));
+}
+
+setInterval(checkForReload, 1000);
+
+
+
+
+
+
+
+
+
+
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.id) {
     chrome.tabs.sendMessage(tab.id, { toggleVisible: true });

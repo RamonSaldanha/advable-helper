@@ -1,0 +1,5 @@
+{
+  "watch": ["src/content-scripts"],
+  "ext": "js,vue",
+  "exec": "npm run build-and-reload"
+}
