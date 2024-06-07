@@ -394,7 +394,3 @@ setup(props) {
 
 
 </script>
-
-<style scoped>
-/* Your component's styles go here */
-</style>
