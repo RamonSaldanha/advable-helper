@@ -55,7 +55,7 @@
       </div>
       <!-- <PartesProcesso :partesProcesso="filteredPartesProcesso" /> -->
     </div>
-    <div class="adble-mb-1" v-if="!process">
+    <div class="adble-mb-1" v-if="!process && !processExists">
       <Button label="Capturar informações deste processo" class="adble-mb-1" @confirm="capture" />
     </div>
     <div class="adble-mb-1" v-else>
@@ -105,18 +105,56 @@ export default defineComponent({
     const errorMessage = ref(null);
 
     onMounted(async () => {
+
       const tabUrl = await new Promise(resolve => {
         chrome.runtime.sendMessage({ type: "GET_CURRENT_ROOT" }, response => {
           resolve(response);
         });
       });
+
       const token = await new Promise(resolve => {
         chrome.storage.local.get(['token'], function (result) {
           resolve(result.token);
         });
       });
-      await capture();
-      getProcess(process.value.process_num, tabUrl, token).then(data => {
+
+      const processElement = await Promise.race([
+        waitForElement('#titulo-detalhes'),
+        waitForElement('section.info-processo')
+      ]);
+
+      if (!processElement) {
+        throw new Error('Nenhum elemento de processo encontrado');
+      }
+      
+      console.log('Elemento de processo encontrado: ' + processElement.id);
+
+      await delay(1500);
+      console.log(processElement.classList.contains('info-processo'))
+      
+      let html;
+
+      if(processElement.id === 'titulo-detalhes') {
+        let element = document.querySelector("#titulo-detalhes > h1");
+        if (element) {
+          html = element.textContent;
+        } else {
+          console.log('Elemento não encontrado: #titulo-detalhes > h1');
+        }
+      } 
+
+      if (processElement.classList.contains('info-processo')) {
+        let element = document.querySelector("body > pje-root > mat-sidenav-container > mat-sidenav-content > pje-cabecalho > div > mat-toolbar > pje-cabecalho-processo > section > div > section.info-processo > span:nth-child(1) > button > span.mat-button-wrapper > span > pje-descricao-processo");
+        if (element) {
+          html = element.textContent;
+        } else {
+          console.log('Elemento não encontrado: body > pje-root > mat-sidenav-container > mat-sidenav-content > pje-cabecalho > div > mat-toolbar > pje-cabecalho-processo > section > div > section.info-processo > span:nth-child(1) > button > span.mat-button-wrapper > span > pje-descricao-processo');
+        }
+      }
+      
+      let processoNumero = html.match(/\d{7}-\d{2}.\d{4}.\d.\d{2}.\d{4}/)[0];
+      
+      getProcess(processoNumero, tabUrl, token).then(data => {
         if(data.process){
           processExists.value = true;
         }
