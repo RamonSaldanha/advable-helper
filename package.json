@@ -1,5 +1,5 @@
 {
-  "name": "awesome-extension",
+  "name": "advable-extension",
   "version": "0.0.0",
   "scripts": {
     "dev": "nodemon --config nodemon.json",
