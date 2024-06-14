@@ -8,9 +8,12 @@
         </svg>
         Processo já cadastrado
       </div>
+      <div class="adble-tasks">
+        <Tasks :tasks="process.tasks" :processId="process.id" />
+      </div>
       <div class="adble-mt-1" style="display: flex; align-items: center;">
         <Link :href="ROOT_URL + '/process/details/' + process.id" target="_blank" class="adble-ml-1">
-          Ver detalhes  
+          Ver detalhes deste processo
           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 9"><path fill="currentColor" d="M12.5 5h-9c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h9c.28 0 .5.22.5.5s-.22.5-.5.5"/><path fill="currentColor" d="M10 8.5a.47.47 0 0 1-.35-.15c-.2-.2-.2-.51 0-.71l3.15-3.15l-3.15-3.15c-.2-.2-.2-.51 0-.71s.51-.2.71 0l3.5 3.5c.2.2.2.51 0 .71l-3.5 3.5c-.1.1-.23.15-.35.15Z"/></svg>
         </Link>
       </div>
@@ -96,6 +99,7 @@ import { addProcess } from './addProcess';
 import { buildData } from './utils';
 import { ROOT_URL } from "../apiConfig";
 import Link from './Components/Link.vue';
+import Tasks from './Components/Tasks.vue';
 
 export default defineComponent({
 name: "processPage",
@@ -107,7 +111,8 @@ props: {
 },
 components: {
   Button,
-  Link
+  Link,
+  Tasks
 },
 setup(props) {
 
@@ -195,6 +200,8 @@ setup(props) {
         process.value = data.process;
         loading.value = false;
       }
+    }).finally(() => {
+      loading.value = false;
     });
   
   });
@@ -384,6 +391,7 @@ setup(props) {
         .then(data => {
           loading.value = false;
           processExists.value = true;
+          process.value = data.process;
         })
         .catch(error => {
           loading.value = false; // Adicione esta linha

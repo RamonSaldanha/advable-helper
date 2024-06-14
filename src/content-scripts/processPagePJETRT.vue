@@ -9,9 +9,12 @@
         </svg>
         Processo já cadastrado
       </div>
+      <div class="adble-tasks">
+        <Tasks :tasks="process.tasks" :processId="process.id" />
+      </div>
       <div class="adble-mt-1" style="display: flex; align-items: center;">
         <Link :href="ROOT_URL + '/process/details/' + process.id" target="_blank" class="adble-ml-1">
-          Ver detalhes  
+          Ver detalhes deste processo
           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 9"><path fill="currentColor" d="M12.5 5h-9c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h9c.28 0 .5.22.5.5s-.22.5-.5.5"/><path fill="currentColor" d="M10 8.5a.47.47 0 0 1-.35-.15c-.2-.2-.2-.51 0-.71l3.15-3.15l-3.15-3.15c-.2-.2-.2-.51 0-.71s.51-.2.71 0l3.5 3.5c.2.2.2.51 0 .71l-3.5 3.5c-.1.1-.23.15-.35.15Z"/></svg>
         </Link>
       </div>
@@ -58,8 +61,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036c-.01-.003-.019 0-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z"/><path fill="white" d="M14.28 2a2 2 0 0 1 1.897 1.368L16.72 5H20a1 1 0 1 1 0 2h-1v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V7H4a1 1 0 0 1 0-2h3.28l.543-1.632A2 2 0 0 1 9.721 2zM17 7H7v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1zm-2.72-3H9.72l-.333 1h5.226z"/></g></svg>
             </button>
           </div>
-  
+          
         </details>
+        <p>Se você ainda não está habilitado(a), é recomendando que você desmarque o campo "Apenas os que eu represento"</p>
       </div>
       <!-- <PartesProcesso :partesProcesso="filteredPartesProcesso" /> -->
     </div>
@@ -88,6 +92,7 @@ import Alert from './Components/Alert.vue';
 import { getProcess } from './getProcess';
 import { ROOT_URL } from '../apiConfig';
 import Link from "./Components/Link.vue";
+import Tasks from "./Components/Tasks.vue";
 
 export default defineComponent({
   name: "processPagePJESeabra",
@@ -105,7 +110,8 @@ export default defineComponent({
     PartesProcesso,
     Label,
     Alert,
-    Link
+    Link,
+    Tasks
   },
   setup(props) {
     const loading = ref(false);
@@ -165,12 +171,16 @@ export default defineComponent({
       
       let processoNumero = html.match(/\d{7}-\d{2}.\d{4}.\d.\d{2}.\d{4}/)[0];
       loading.value = true;
-      getProcess(processoNumero, tabUrl, token).then(data => {
+      getProcess(processoNumero, tabUrl, token)
+      .then(data => {
         if(data.process){
           processExists.value = true;
           loading.value = false;
           process.value = data.process;
         }
+      })
+      .finally(() => {
+        loading.value = false;
       });
     });
 
